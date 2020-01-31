@@ -1,0 +1,2 @@
+# NoxMafiaBot
+Discord Mafia Bot
