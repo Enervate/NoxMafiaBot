@@ -1,0 +1,137 @@
+{
+  "defaultRoles": [
+    {
+      "roleName": "Goon",
+      "roleDescription": "You may perform the night kill for the Mafia.",
+      "rolePowers": [ "NightKill" ],
+      "rolePowerCharges": [ -1 ],
+      "roleAlignment": "Mafia"
+    },
+    {
+      "roleName": "Godfather",
+      "roleDescription": "You decide which Mafia team member will perform the night kill. If investigated, you will be seen as Town.",
+      "rolePowers": [ "NightKill", "InvestigationImmune" ],
+      "rolePowerCharges": [ -1, -1 ],
+      "roleAlignment": "Mafia"
+    },
+    {
+      "roleName": "Strongman",
+      "roleDescription": "You may perform the night kill for the Mafia. If you are chosen to perform the night kill and choose to use your power, you will bypass any protections that may be present on your target.",
+      "rolePowers": [ "NightKill", "Strongman" ],
+      "rolePowerCharges": [ -1, 1 ],
+      "roleAlignment": "Mafia"
+    },
+    {
+      "roleName": "Ninja",
+      "roleDescription": "You may perform the night kill for the Mafia. If you are chosen to perform the night kill and choose to use your power, you cannot be seen visiting the target.",
+      "rolePowers": [ "NightKill", "Ninja" ],
+      "rolePowerCharges": [ -1, 1 ],
+      "roleAlignment": "Mafia"
+    },
+    {
+      "roleName": "Janitor",
+      "roleDescription": "You may perform the night kill for the Mafia. If you are chosen to perform the night kill and choose to use your power, your target's kill flip will not show up the following day should they be successfully killed.",
+      "rolePowers": [ "NightKill", "Janitor" ],
+      "rolePowerCharges": [ -1, 1 ],
+      "roleAlignment": "Mafia"
+    },
+    {
+      "roleName": "Roleblocker",
+      "roleDescription": "You may perform the night kill for the Mafia. At night, you may target a player and attempt to prevent them from performing a night action.",
+      "rolePowers": [ "NightKill", "Roleblock" ],
+      "rolePowerCharges": [ -1, -1 ],
+      "roleAlignment": "Mafia"
+    },
+    {
+      "roleName": "Framer",
+      "roleDescription": "You may perform the night kill for the Mafia. At night, you may target a player and attempt to cause them to appear as Mafia if investigated.",
+      "rolePowers": [ "NightKill", "Frame" ],
+      "rolePowerCharges": [ -1, -1 ],
+      "roleAlignment": "Mafia"
+    },
+    {
+      "roleName": "Serial Killer",
+      "roleDescription": "You may attempt to kill any player at night.",
+      "rolePowers": [ "NightKill" ],
+      "rolePowerCharges": [ -1 ],
+      "roleAlignment": "ThirdParty"
+    },
+    {
+      "roleName": "Jester",
+      "roleDescription": "You can only win the game by being lynched.",
+      "rolePowers": [ "Jester" ],
+      "rolePowerCharges": [ -1 ],
+      "roleAlignment": "ThirdParty"
+    },
+    {
+      "roleName": "Miller",
+      "roleDescription": "You will appear as Mafia if investigated.",
+      "rolePowers": [ "Miller" ],
+      "rolePowerCharges": [ -1 ],
+      "roleAlignment": "Town"
+    },
+    {
+      "roleName": "Cop",
+      "roleDescription": "At night, you may target a player to attempt to investigate them. If successful, your result will be Mafia or Not Mafia.",
+      "rolePowers": [ "Investigate" ],
+      "rolePowerCharges": [ -1 ],
+      "roleAlignment": "Town"
+    },
+    {
+      "roleName": "Jailer",
+      "roleDescription": "At night, you may target a player to attempt to jail them, which will prevent them from performing night actions or being killed during the night.",
+      "rolePowers": [ "Jail" ],
+      "rolePowerCharges": [ -1 ],
+      "roleAlignment": "Town"
+    },
+    {
+      "roleName": "Doctor",
+      "roleDescription": "At night, you may target a player to attempt to prevent them from being killed that night.",
+      "rolePowers": [ "Doctor" ],
+      "rolePowerCharges": [ -1 ],
+      "roleAlignment": "Town"
+    },
+    {
+      "roleName": "Tracker",
+      "roleDescription": "At night, you may target a player to attempt to learn if they visited another player that night. If successful, you will learn who they visit.",
+      "rolePowers": [ "Track" ],
+      "rolePowerCharges": [ -1 ],
+      "roleAlignment": "Town"
+    },
+    {
+      "roleName": "Watcher",
+      "roleDescription": "At night, you may target a player to attempt to learn if another player visited them that night. If successful, you will learn who visited them.",
+      "rolePowers": [ "Watch" ],
+      "rolePowerCharges": [ -1 ],
+      "roleAlignment": "Town"
+    },
+    {
+      "roleName": "Paranoid Gun Owner",
+      "roleDescription": "You will automatically attempt to kill any player that visits you at night.",
+      "rolePowers": [ "Paranoid" ],
+      "rolePowerCharges": [ -1 ],
+      "roleAlignment": "Town"
+    },
+    {
+      "roleName": "Innocent Child",
+      "roleDescription": "At the beginning of the game, you will be confirmed by the bot as Town in the chat channel.",
+      "rolePowers": [ "Innocent" ],
+      "rolePowerCharges": [ -1 ],
+      "roleAlignment": "Town"
+    },
+    {
+      "roleName": "Vigilante",
+      "roleDescription": "Once per game, during the day, you may attempt to kill a player by using the !kill <Player> command.",
+      "rolePowers": [ "Vigilante" ],
+      "rolePowerCharges": [ 1 ],
+      "roleAlignment": "Town"
+    },
+    {
+      "roleName": "Vanilla",
+      "roleDescription": "Your only power is your vote.",
+      "rolePowers": [ "None" ],
+      "rolePowerCharges": [ -1 ],
+      "roleAlignment": "Town"
+    }
+  ]
+}
