@@ -52,10 +52,14 @@ namespace Mafia
     {
         public SocketUser Username;
         public PlayerRole Role;
-        public bool FlipOnDeath = true;
+        public bool Alive = true, FlipOnDeath = true;
+        public List<SocketUser> Votes;
 
         public Player(SocketUser user)
-            => Username = user;
+        {
+            Username = user;
+            Votes = new List<SocketUser>();
+        }
     }
 
     public class DefaultRole
@@ -100,22 +104,10 @@ namespace Mafia
         }
     }
 
-    public class Vote
-    {
-        public SocketUser Voter, Votee;
-
-        public Vote(SocketUser voter, SocketUser votee)
-        {
-            Voter = voter;
-            Votee = votee;
-        }
-    }
-
     public class Game
     {
         public List<Player> PlayerList;
         public List<PlayerRole> PlayerRoles;
-        public List<Vote> CurrentVotes;
 
         public bool Running;
         public int Players, DayCount;
@@ -133,7 +125,6 @@ namespace Mafia
             State = GameState.Signups;
             PlayerList = new List<Player>();
             PlayerRoles = new List<PlayerRole>();
-            CurrentVotes = new List<Vote>();
         }
     }
 }

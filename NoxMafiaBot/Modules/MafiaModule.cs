@@ -58,18 +58,53 @@ namespace Mafia.Modules
                 return;
             }
 
-            if(CurrentGame.PlayerList.Count < CurrentGame.Players)
+            if (CurrentGame.PlayerList.Count < CurrentGame.Players)
             {
                 await Context.User.SendMessageAsync($"Current game in {CurrentGame.Server.Name} has fewer players signed up than the required {CurrentGame.Players}, please get more people to sign up or adjust the number of players with the !numplayers command.");
                 return;
             }
 
+            // Start the game!
             CurrentGame.State = GameState.Day;
 
-            //DOSTUFF to start the game
+            // If the list of roles is shorter than the list of players, fill the list of roles with vanilla town
+            if (CurrentGame.PlayerRoles.Count < CurrentGame.Players)
+            {
+                int Count = CurrentGame.PlayerRoles.Count;
+                for (int i = 0; i < (CurrentGame.Players - Count); i++)
+                    CurrentGame.PlayerRoles.Add(new PlayerRole("Vanilla", "Your only power is your vote.", PowerFlags.None, new int[] { -1 }, PlayerAlignment.Town));
+            }
+
+            /*  ***** DEBUG ***** 
+                Generate a list of dummy players if the player list isn't full
+                Comment this code out for release  */
+            //if (CurrentGame.PlayerList.Count < CurrentGame.Players)
+            //{
+            //    int Count = CurrentGame.PlayerList.Count;
+            //    for (int i = 0; i < (CurrentGame.Players - Count); i++)
+            //        CurrentGame.PlayerList.Add(new Player(Context.User));
+            //}
+            /*  ***** DEBUG ***** */
+
+            // Assign a random role from the role list to each player
+            var rnd = new Random();
+            var roleAssignments = Enumerable.Range(0, CurrentGame.PlayerRoles.Count).OrderBy(x => rnd.Next()).Take(CurrentGame.PlayerRoles.Count).ToList();
+
+            for(int i = 0; i < roleAssignments.Count; i++)
+                CurrentGame.PlayerList[i].Role = CurrentGame.PlayerRoles[roleAssignments[i]];
+
+            // ***** TODO *****: Create group DM for the Mafia
+
+            // Notify the players
+            string Mention = string.Empty;
+
+            if (GetRoleID(Context.Guild, "MafiaPlayer") != 0)
+                Mention = $"{MentionUtils.MentionRole(GetRoleID(Context.Guild, "MafiaPlayer"))} ";
+
+            await ReplyAsync($"Attention{Mention}! The game has started! !vote to kill your friends.");
         }
 
-        [Command("startsignups")]
+        [Command("startsignups")][Alias("ss")]
         [Summary("Start signups for a new game")]
         [RequireContext(ContextType.Guild)]
         public async Task BeginSignups([Remainder]int Players)
@@ -120,10 +155,10 @@ namespace Mafia.Modules
             }
         }
 
-        [Command("cancelgame")]
+        [Command("cancelgame")][Alias("cg")]
         [Summary("Cancel the current game")]
         [RequireContext(ContextType.Guild)]
-        public async Task EndGame()
+        public async Task CancelGame()
         {
             if (Context.Channel.Name != "mafia") // Ignore command if not typed in mafia channel
                 return;
@@ -175,13 +210,8 @@ namespace Mafia.Modules
             {
                 if (CurrentGame.PlayerList.Count < CurrentGame.Players) // Make sure the game has room
                 {
-                    if (CheckRole(Context.User as SocketGuildUser, "MafiaPlayer") || CheckRole(Context.User as SocketGuildUser, "MafiaMod"))
-                    {
-                        CurrentGame.PlayerList.Add(new Player(Context.User)); // Instantiate a new player object for this game
-                        await ReplyAsync($"Player {Context.User.Username} has signed up!");
-                    }
-                    else
-                        await Context.User.SendMessageAsync("You need to have the MafiaPlayer or MafiaMod role in order to use this command!");
+                    CurrentGame.PlayerList.Add(new Player(Context.User)); // Instantiate a new player object for this game
+                    await ReplyAsync($"Player {Context.User.Username} has signed up!");
                 }
                 else
                     await Context.User.SendMessageAsync("Current game is full!");
@@ -211,22 +241,17 @@ namespace Mafia.Modules
 
             if (CurrentGame != null)
             {
-                if (CheckRole(Context.User as SocketGuildUser, "MafiaPlayer") || CheckRole(Context.User as SocketGuildUser, "MafiaMod"))
+                foreach (Player player in CurrentGame.PlayerList)
                 {
-                    foreach (Player player in CurrentGame.PlayerList)
+                    if (player.Username == Context.User)
                     {
-                        if (player.Username == Context.User)
-                        {
-                            CurrentGame.PlayerList.Remove(player); // Remove player instance from this game
-                            await ReplyAsync($"Player {Context.User.Username} is no longer signed up!");
+                        CurrentGame.PlayerList.Remove(player); // Remove player instance from this game
+                        await ReplyAsync($"Player {Context.User.Username} is no longer signed up!");
 
-                            return;
-                        }
+                        return;
                     }
-                    await Context.User.SendMessageAsync("You are not signed up for any games on this server!");
                 }
-                else
-                    await Context.User.SendMessageAsync("You need to have the MafiaPlayer or MafiaMod role in order to use this command!");
+                await Context.User.SendMessageAsync("You are not signed up for any games on this server!");
             }
             else
                 await ReplyAsync("There is no game running on this server!");
@@ -258,18 +283,13 @@ namespace Mafia.Modules
                 else
                     await ReplyAsync("Current game players:");
 
-                if (CheckRole(Context.User as SocketGuildUser, "MafiaPlayer") || CheckRole(Context.User as SocketGuildUser, "MafiaMod"))
-                {
-                    string players = string.Empty;
+                string players = string.Empty;
 
-                    // Build a list of current players
-                    foreach (Player player in CurrentGame.PlayerList)
-                        players += player.Username.Username + "\n";
+                // Build a list of current players
+                foreach (Player player in CurrentGame.PlayerList)
+                    players += player.Username.Username + "\n";
 
-                    await ReplyAsync(players);
-                }
-                else
-                    await Context.User.SendMessageAsync("You need to have the MafiaPlayer or MafiaMod role in order to use this command!");
+                await ReplyAsync(players);
             }
             else
                 await ReplyAsync("There is no game running on this server!");
@@ -483,9 +503,9 @@ namespace Mafia.Modules
             }
         }
 
-        // *********************************************
-        // The commmands work while the game is underway
-        // *********************************************
+        // ***************************************************
+        // The commmands below work while the game is underway
+        // ***************************************************
 
         [Command("roles")]
         [Summary("List the roles added to the current game")]
@@ -502,14 +522,183 @@ namespace Mafia.Modules
 
             if (CurrentGame != null)
             {
-                string Response = "__Role list for current game__:\n";
-                foreach (Mafia.PlayerRole role in CurrentGame.PlayerRoles)
-                    Response += $"{role.Name}\n";
+                string Response = string.Empty;
+
+                if (CurrentGame.State == GameState.Signups)
+                {
+                    Response = "__Role list for current game__:\n";
+                    foreach (Mafia.PlayerRole role in CurrentGame.PlayerRoles)
+                        Response += $"{role.Name}\n";
+                }
+                else
+                {
+                    Response = "__Role list for current game__:\n";
+                    foreach (Mafia.Player player in CurrentGame.PlayerList)
+                        Response += $"{player.Username.Username} - {player.Role.Name}\n";
+                }
 
                 await Context.User.SendMessageAsync(Response.TrimEnd());
             }
             else
                 await Context.User.SendMessageAsync("There is no game running on this server or you are not the mod of the current game!");
+        }
+
+        [Command("votecount")][Alias("vc")]
+        [Summary("Get the current vote count")]
+        [RequireContext(ContextType.Guild)]
+        public async Task VoteCount()
+        {
+            if (Context.Channel.Name != "mafia") // Ignore command if not typed in mafia channel
+                return;
+
+            Game CurrentGame = null;
+
+            foreach (Mafia.Game game in Startup.Games) // Make sure a game is running on this server
+            {
+                if (game.Server == Context.Guild as SocketGuild)
+                    CurrentGame = game;
+            }
+
+            if (CurrentGame != null && CurrentGame.State == GameState.Signups) // Ignore command if game is not running
+                return;
+
+            if (CurrentGame.State == GameState.Night) // Ignore command if it is night
+                return;
+
+            string vcResponse = string.Empty;
+            List<SocketUser> hasVoted = new List<SocketUser>();
+
+            // Count the votes against each player
+            foreach(Player player in CurrentGame.PlayerList)
+            {
+                if(player.Alive && player.Votes.Count > 0)
+                {
+                    string voteList = string.Empty;
+                    int voteCount = 0;
+                    
+                    foreach(SocketUser vote in player.Votes)
+                    {
+                        voteList += $"{vote.Username}, ";
+                        voteCount++;
+
+                        if (!hasVoted.Contains(vote)) //Add each unique voter to a list
+                            hasVoted.Add(vote);
+                    }
+
+                    voteList = voteList.TrimEnd(new char[] { ',', ' ' });
+                    vcResponse += $"**{player.Username.Username}** ({voteCount}): {voteList}";
+                    vcResponse += "\n";
+                }
+            }
+
+            vcResponse += "**No Vote** (";
+
+            string noVoteList = string.Empty;
+            int noVoteCount = 0;
+
+            // Count the number of non-voters
+
+            foreach (Player player in CurrentGame.PlayerList)
+            {
+                if(player.Alive && !hasVoted.Contains(player.Username))
+                {
+                    noVoteList += $"{player.Username.Username}, ";
+                    noVoteCount++;
+                }
+            }
+
+            noVoteList = noVoteList.TrimEnd(new char[] { ',', ' ' });
+            vcResponse += $"{noVoteCount}): {noVoteList}";
+            vcResponse += "\n";
+
+            await ReplyAsync(vcResponse);
+        }
+
+        [Command("vote")]
+        [Summary("Vote for target player to be lynched")]
+        [RequireContext(ContextType.Guild)]
+        public async Task Vote([Remainder]string Target)
+        {
+            if (Context.Channel.Name != "mafia") // Ignore command if not typed in mafia channel
+                return;
+
+            Game CurrentGame = null;
+
+            foreach (Mafia.Game game in Startup.Games) // Make sure a game is running on this server
+            {
+                if (game.Server == Context.Guild as SocketGuild)
+                    CurrentGame = game;
+            }
+
+            if (CurrentGame != null && CurrentGame.State == GameState.Signups) // Ignore command if game is not running
+                return;
+
+            if (CurrentGame.State == GameState.Night) // Ignore command if it is night
+                return;
+
+            Mafia.Player Voter = null, Votee = null;
+
+            //Fetch the voter and votee from the current game's player list
+            foreach(Mafia.Player player in CurrentGame.PlayerList)
+            {
+                if (player.Username == Context.User)
+                    Voter = player;
+                if (player.Username.Username == Target)
+                    Votee = player;
+            }
+
+            if (Voter != null && Votee != null) // Ignore the command if either the voter or the votee is not participating in this game
+            {
+                if (!Votee.Votes.Contains(Voter.Username))
+                {
+                    Votee.Votes.Add(Voter.Username);
+
+                    await Context.User.SendMessageAsync($"Vote on player {Votee.Username.Username} registered.");
+                }
+                else
+                    await Context.User.SendMessageAsync($"You have already voted on {Votee.Username.Username}!");
+            }
+            else if (Voter != null && Votee == null)
+                await Context.User.SendMessageAsync($"Your vote target \"{Target}\" does not appear to be playing in this game! Please check the spelling and capitalization of your vote target.");
+        }
+
+        [Command("unvote")]
+        [Summary("Remove your current vote")]
+        [RequireContext(ContextType.Guild)]
+        public async Task Unvote()
+        {
+            if (Context.Channel.Name != "mafia") // Ignore command if not typed in mafia channel
+                return;
+
+            Game CurrentGame = null;
+
+            foreach (Mafia.Game game in Startup.Games) // Make sure a game is running on this server
+            {
+                if (game.Server == Context.Guild as SocketGuild)
+                    CurrentGame = game;
+            }
+
+            if (CurrentGame != null && CurrentGame.State == GameState.Signups) // Ignore command if game is not running
+                return;
+
+            if (CurrentGame.State == GameState.Night) // Ignore command if it is night
+                return;
+
+            bool Found = false;
+
+            foreach (Mafia.Player player in CurrentGame.PlayerList)
+            {
+                if (player.Votes.Contains(Context.User))
+                {
+                    player.Votes.Remove(Context.User);
+                    Found = true;
+
+                    await Context.User.SendMessageAsync($"Removed your vote on {player.Username.Username}.");
+                }
+            }
+
+            if (!Found)
+                await Context.User.SendMessageAsync($"You do not appear to have an active vote on any player in the current game on {Context.Guild.Name}!");
         }
     }
 }
