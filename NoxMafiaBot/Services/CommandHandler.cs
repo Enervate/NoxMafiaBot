@@ -37,7 +37,7 @@ namespace NoxMafiaBot
             var context = new SocketCommandContext(_discord, msg);     // Create the command context
 
             int argPos = 0;     // Check if the message has a valid command prefix
-            if (msg.HasStringPrefix("!", ref argPos) || msg.HasMentionPrefix(_discord.CurrentUser, ref argPos))
+            if (msg.HasStringPrefix("##", ref argPos) || msg.HasMentionPrefix(_discord.CurrentUser, ref argPos))
             {
                 var result = await _commands.ExecuteAsync(context, argPos, _provider);     // Execute the command
 

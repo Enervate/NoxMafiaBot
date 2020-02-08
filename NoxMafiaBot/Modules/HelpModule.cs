@@ -21,7 +21,7 @@ namespace Mafia.Modules
         [Summary("List the available commands")]
         public async Task HelpAsync()
         {
-            string prefix = "!";
+            string prefix = "##";
             var builder = new EmbedBuilder()
             {
                 Color = new Color(114, 137, 218),

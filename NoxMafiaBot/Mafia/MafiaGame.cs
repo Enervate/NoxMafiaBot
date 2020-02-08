@@ -28,24 +28,24 @@ namespace Mafia
 
     [Flags] public enum PowerFlags
     {
-        None                = 0,
-        NightKill           = 1,
-        Vigilante           = 2,
-        Strongman           = 4,
-        Ninja               = 8,
-        Janitor             = 16,
-        Roleblock           = 32,
+        None = 0,
+        NightKill = 1,
+        Vigilante = 2,
+        Strongman = 4,
+        Ninja = 8,
+        Janitor = 16,
+        Roleblock = 32,
         InvestigationImmune = 64,
-        Miller              = 128,
-        Frame               = 256,
-        Investigate         = 512,
-        Doctor              = 1024,
-        Track               = 2048,
-        Watch               = 4096,
-        Innocent            = 8192,
-        Paranoid            = 16384,
-        Jail                = 32768,
-        Jester              = 65536,
+        Miller = 128,
+        Frame = 256,
+        Investigate = 512,
+        Doctor = 1024,
+        Track = 2048,
+        Watch = 4096,
+        Innocent = 8192,
+        Paranoid = 16384,
+        Jail = 32768,
+        Jester = 65536,
     }
 
     public class Player
@@ -106,7 +106,7 @@ namespace Mafia
 
     public class Game
     {
-        public List<Player> PlayerList;
+        public List<Player> PlayerList, MafiaList;
         public List<PlayerRole> PlayerRoles;
 
         public bool Running;
@@ -124,6 +124,7 @@ namespace Mafia
             DayCount = 0;
             State = GameState.Signups;
             PlayerList = new List<Player>();
+            MafiaList = new List<Player>();
             PlayerRoles = new List<PlayerRole>();
         }
     }
