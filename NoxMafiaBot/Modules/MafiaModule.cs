@@ -749,6 +749,8 @@ namespace Mafia.Modules
                     Votee.Votes.Add(Voter.Username);
 
                     await Context.User.SendMessageAsync($"Vote on player {Votee.Username.Username} registered.");
+
+                    //lynch
                 }
                 else
                     await Context.User.SendMessageAsync($"You have already voted on {Votee.Username.Username}!");

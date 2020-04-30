@@ -110,7 +110,7 @@ namespace Mafia
         public List<PlayerRole> PlayerRoles;
 
         public bool Running;
-        public int Players, DayCount;
+        public int Players, LivingPlayers, DayCount;
         public SocketGuild Server;
         public SocketUser Mod;
         public GameState State;
@@ -121,6 +121,7 @@ namespace Mafia
             Server = DiscordServer;
             Mod = GameMod;
             Players = NumberOfPlayers;
+            LivingPlayers = NumberOfPlayers;
             DayCount = 0;
             State = GameState.Signups;
             PlayerList = new List<Player>();
